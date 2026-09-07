@@ -11,13 +11,25 @@ POSITIVE_COLOR = (0, 0, 255)  # Red in OpenCV BGR order.
 NEGATIVE_COLOR = (255, 0, 0)  # Blue in OpenCV BGR order.
 
 
-def _draw_events(frame, x, y, p):
+def _draw_events(frame, x, y, p, alpha=1.0):
     """Draw positive events in red and negative events in blue."""
 
     if len(p) == 0:
         return frame
-    frame[y[p < 0], x[p < 0]] = NEGATIVE_COLOR
-    frame[y[p > 0], x[p > 0]] = POSITIVE_COLOR
+    for event_mask, color in (
+        (p < 0, NEGATIVE_COLOR),
+        (p > 0, POSITIVE_COLOR),
+    ):
+        event_x = x[event_mask]
+        event_y = y[event_mask]
+        if len(event_x) == 0:
+            continue
+        if alpha == 1.0:
+            frame[event_y, event_x] = color
+            continue
+        original = frame[event_y, event_x].astype(np.float32)
+        blended = original * (1.0 - alpha) + np.asarray(color) * alpha
+        frame[event_y, event_x] = np.rint(blended).astype(np.uint8)
     return frame
 
 
@@ -32,6 +44,8 @@ class StreamingEventVisualizer:
         accumulation_time,
         snapshot_start_time,
         snapshot_duration,
+        overlay_playback_fps,
+        overlay_event_alpha,
     ):
         if accumulation_time <= 0:
             raise ValueError("Accumulation time must be greater than zero")
@@ -39,6 +53,10 @@ class StreamingEventVisualizer:
             raise ValueError("Snapshot start time cannot be negative")
         if snapshot_duration <= 0:
             raise ValueError("Snapshot duration must be greater than zero")
+        if overlay_playback_fps <= 0:
+            raise ValueError("Overlay playback FPS must be greater than zero")
+        if not 0 < overlay_event_alpha <= 1:
+            raise ValueError("Overlay event alpha must be in the range (0, 1]")
 
         self.overlay_path = Path(overlay_path)
         self.snapshot_path = Path(snapshot_path)
@@ -47,6 +65,7 @@ class StreamingEventVisualizer:
         self.accumulation_time = float(accumulation_time)
         self.snapshot_start_time = float(snapshot_start_time)
         self.snapshot_end_time = float(snapshot_start_time + snapshot_duration)
+        self.overlay_event_alpha = float(overlay_event_alpha)
         self._recent_batches = deque()
         self.processed_frames = 0
         self.snapshot_event_count = 0
@@ -54,12 +73,11 @@ class StreamingEventVisualizer:
 
         width = int(video_info["width"])
         height = int(video_info["height"])
-        fps = float(video_info["fps"])
         self._snapshot = np.full((height, width, 3), 127, dtype=np.uint8)
         self._writer = cv2.VideoWriter(
             str(self.overlay_path),
             cv2.VideoWriter_fourcc(*"mp4v"),
-            fps,
+            float(overlay_playback_fps),
             (width, height),
         )
         if not self._writer.isOpened():
@@ -104,6 +122,7 @@ class StreamingEventVisualizer:
                     batch["x"][start:end],
                     batch["y"][start:end],
                     batch["p"][start:end],
+                    self.overlay_event_alpha,
                 )
 
         self._writer.write(frame)

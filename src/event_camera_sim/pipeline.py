@@ -48,7 +48,9 @@ def build_output_paths(video_path):
         f"ts{_format_parameter(config.TIMESTAMP_RESOLUTION)}_"
         f"acc{_format_parameter(config.ACCUMULATION_TIME)}_"
         f"snap{_format_parameter(config.SNAPSHOT_START_TIME)}-"
-        f"{_format_parameter(config.SNAPSHOT_DURATION)}"
+        f"{_format_parameter(config.SNAPSHOT_DURATION)}_"
+        f"view{_format_parameter(config.OVERLAY_PLAYBACK_FPS)}_"
+        f"alpha{_format_parameter(config.OVERLAY_EVENT_ALPHA)}"
     )
     result_dir = config.OUTPUT_DIR / video_path.stem / parameter_tag
     return {
@@ -128,6 +130,8 @@ def _build_metadata(
             "accumulation_time": config.ACCUMULATION_TIME,
             "snapshot_start_time": config.SNAPSHOT_START_TIME,
             "snapshot_duration": config.SNAPSHOT_DURATION,
+            "overlay_playback_fps": config.OVERLAY_PLAYBACK_FPS,
+            "overlay_event_alpha": config.OVERLAY_EVENT_ALPHA,
             "low_fps_warning_threshold": config.LOW_FPS_WARNING,
         },
         "storage": {
@@ -263,6 +267,8 @@ def run(video_path):
             config.ACCUMULATION_TIME,
             config.SNAPSHOT_START_TIME,
             config.SNAPSHOT_DURATION,
+            config.OVERLAY_PLAYBACK_FPS,
+            config.OVERLAY_EVENT_ALPHA,
         )
 
         while True:
