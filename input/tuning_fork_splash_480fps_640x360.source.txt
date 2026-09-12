@@ -1,0 +1,16 @@
+Source title: Tuning fork creates splashes in water.webm
+Source author: Lordgurke
+Source page: https://commons.wikimedia.org/wiki/File:Tuning_fork_creates_splashes_in_water.webm
+Original file: https://commons.wikimedia.org/wiki/Special:Redirect/file/Tuning_fork_creates_splashes_in_water.webm
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+License URL: https://creativecommons.org/licenses/by-sa/4.0/
+Capture frame rate: 480 FPS
+Published playback frame rate: 30 FPS (~1/16 realtime)
+
+Local transformation:
+- Decoded all 783 available source frames from the 30 FPS slow-motion file.
+- Restored the capture timeline by encoding all frames at 480 FPS.
+- Resized each frame from 1280x720 to 640x360 with area interpolation.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 1.631250 seconds.
+- Features mechanical vibration and multiple high-speed bouncing water droplet trajectories.

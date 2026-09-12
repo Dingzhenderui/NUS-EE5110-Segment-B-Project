@@ -235,8 +235,39 @@ python -m pip install --editable .
 
 ## 运行模拟器
 
-将 `.mp4`、`.avi`、`.mov` 或 `.mkv` 文件直接放入 `input/`，然后运行下面的
-命令。实际支持的容器和编码格式取决于当前 OpenCV 安装中可用的编解码器。
+本项目提供三种运行方式：**Windows 独立免安装 EXE**、**现代化交互 GUI 界面** 与 **命令行 CLI 脚本**。
+
+### 方式一：Windows 独立可执行程序（推荐 PPT 答辩演示）
+
+项目已打包为独立的 Windows 免安装绿色运行包，存放在 `dist/EventCameraSimulator/` 目录下：
+
+1. 打开 `dist/EventCameraSimulator/` 目录；
+2. 双击运行 `EventCameraSimulator.exe` 即可启动图形交互界面（无需预装 Python 或 Conda 环境）；
+3. 随包已附带 `input/` 8 款精选高速演示素材（蜂鸟 2000 FPS、音叉水花 480 FPS、闪电 240 FPS、齿轮 960 FPS 等）以及英文使用说明 `README_Instructions.txt`。
+
+> 如需重新打包构建最新版本，可在激活环境后运行 `python build_exe.py`。
+
+### 方式二：从源码启动图形界面 (GUI)
+
+在仓库根目录下双击 `run_gui.bat`，或者在终端执行：
+
+```bash
+python run_app.py
+# 或
+python -m event_camera_sim gui
+```
+
+**图形界面主要特性（全英文学术界面，专为 PPT 汇报设计）：**
+- **全英文界面 (English UI)**：纯英文学术布局与标准术语，契合 NUS 课件与学术报告规范。
+- **极简稳定 (Streamlined & Robust)**：单行极简标题与专属 Logo，界面零卡顿、低延迟。
+- **视频输入与快速演示**：内置 8 款高速素材下拉直选 + 本地文件浏览；提供帧数限制选项（默认 150 帧，1~2 秒极速出图，非常适合现场 PPT 演示）。
+- **核心参数滑块**：直观调节正阈值 $C_{pos}$、负阈值 $C_{neg}$、累积时间 $T_{acc}$ (ms) 与事件透明度 $\alpha$。
+- **清晰输出与交互播放**：支持【事件叠加 (Event Overlay)】与【纯事件流 (Event-Only)】双模态切换，支持播放/暂停、时间轴拖拽与倍速选择。
+- **结构化归档输出**：每次模拟生成的结果均按“素材名/时间戳”规范归档保存在 `output/` 文件夹中（含完整 HDF5、CSV 样例、MP4 演示视频及 JSON 实验报告），界面提供一键直达按钮。
+
+### 方式三：命令行 (CLI) 运行
+
+将 `.mp4`、`.avi`、`.mov` 或 `.mkv` 文件放入 `input/`，在终端运行：
 
 ```bash
 python -m event_camera_sim run --video snowfall_240fps_640x360.mp4

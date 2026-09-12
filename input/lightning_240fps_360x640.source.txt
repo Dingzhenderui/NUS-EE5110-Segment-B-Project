@@ -1,0 +1,16 @@
+Source title: Lightning strikes in slow motion (240fps) in Muurame, Finland.webm
+Source author: MrNousia
+Source page: https://commons.wikimedia.org/wiki/File:Lightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm
+Original file: https://commons.wikimedia.org/wiki/Special:Redirect/file/Lightning_strikes_in_slow_motion_%28240fps%29_in_Muurame%2C_Finland.webm
+License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+License URL: https://creativecommons.org/licenses/by/3.0/
+Capture frame rate: 240 FPS
+Published playback frame rate: 29.0 FPS
+
+Local transformation:
+- Decoded all 234 available source frames from the slow-motion file.
+- Preserved the capture timeline at 240 FPS.
+- Resized vertical video from 1080x1920 to 360x640 with area interpolation.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 0.975000 seconds.
+- Extreme rapid brightness transitions and atmospheric branching discharge channels.

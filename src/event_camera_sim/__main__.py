@@ -14,9 +14,15 @@ def main():
         description="Generate events from the configured high-frame-rate video.",
     )
     subparsers = parser.add_subparsers(dest="command")
+
+    gui_parser = subparsers.add_parser(
+        "gui",
+        help="launch the modern graphical interface (default)",
+    )
+
     run_parser = subparsers.add_parser(
         "run",
-        help="select one input video and run the complete simulation",
+        help="select one input video and run the complete simulation via CLI",
     )
     run_parser.add_argument(
         "--video",
@@ -25,9 +31,9 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.command is None:
-        parser.print_help()
-        return 0
+    if args.command is None or args.command == "gui":
+        from .gui.app import main as gui_main
+        return gui_main()
 
     try:
         video_path = select_input_video(

@@ -1,0 +1,16 @@
+Source title: Rufous hummingbird attacking Anna's hummingbird
+Source author: HopefullyUsefulContribution
+Source page: https://commons.wikimedia.org/wiki/File:Rufous_hummingbird_attacking_Anna%27s_hummingbird.webm
+Original file: https://commons.wikimedia.org/wiki/Special:Redirect/file/Rufous_hummingbird_attacking_Anna%27s_hummingbird.webm
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+License URL: https://creativecommons.org/licenses/by-sa/4.0/
+Capture frame rate: 2000 FPS
+Published playback frame rate: 30 FPS (~1/67 realtime)
+
+Local transformation:
+- Decoded all 1039 available source frames from the 30 FPS slow-motion file.
+- Restored the capture timeline by encoding all frames at 2000 FPS.
+- Resized each frame from 720x400 to 648x360 (preserving 16:9 aspect ratio area) with area interpolation.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 0.519500 seconds.
+- Multi-agent fast motion scene: two hummingbirds fighting with wing flapping at ~50 Hz.

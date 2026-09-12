@@ -1,0 +1,16 @@
+Source title: Wasserquelle (960 FPS) 20190804.webm
+Source author: PantheraLeo1359531
+Source page: https://commons.wikimedia.org/wiki/File:Wasserquelle_%28960_FPS%29_20190804.webm
+Original file: https://commons.wikimedia.org/wiki/Special:Redirect/file/Wasserquelle_%28960_FPS%29_20190804.webm
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+License URL: https://creativecommons.org/licenses/by-sa/4.0/
+Capture frame rate: 960 FPS
+Published playback frame rate: 30 FPS
+
+Local transformation:
+- Decoded all 810 available source frames from the 30 FPS slow-motion file.
+- Restored the capture timeline by encoding all frames at 960 FPS.
+- Resized each frame from 1280x720 to 640x360 with area interpolation.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 0.843750 seconds.
+- Features multiple turbulent spring water currents and high-density droplet distribution.

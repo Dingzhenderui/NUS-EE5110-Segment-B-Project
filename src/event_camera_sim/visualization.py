@@ -74,9 +74,11 @@ class StreamingEventVisualizer:
 
         self.overlay_path = Path(overlay_path)
         self.event_only_path = Path(event_only_path)
-        self.snapshot_path = Path(snapshot_path)
         self.overlay_path.parent.mkdir(parents=True, exist_ok=True)
-        self.snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+        self.event_only_path.parent.mkdir(parents=True, exist_ok=True)
+        self.snapshot_path = Path(snapshot_path) if snapshot_path is not None else None
+        if self.snapshot_path is not None:
+            self.snapshot_path.parent.mkdir(parents=True, exist_ok=True)
         self.accumulation_time = float(accumulation_time)
         self.snapshot_start_time = float(snapshot_start_time)
         self.snapshot_end_time = float(snapshot_start_time + snapshot_duration)
@@ -88,7 +90,11 @@ class StreamingEventVisualizer:
 
         width = int(video_info["width"])
         height = int(video_info["height"])
-        self._snapshot = np.full((height, width, 3), EVENT_CANVAS_GRAY, dtype=np.uint8)
+        self._snapshot = (
+            np.full((height, width, 3), EVENT_CANVAS_GRAY, dtype=np.uint8)
+            if self.snapshot_path is not None
+            else None
+        )
         self._event_canvas = np.full(
             (height, width, 3), EVENT_CANVAS_GRAY, dtype=np.uint8
         )
@@ -107,20 +113,21 @@ class StreamingEventVisualizer:
         if event_count > 0:
             self._recent_batches.append(events)
 
-            snapshot_start = np.searchsorted(
-                events["t"], self.snapshot_start_time, side="left"
-            )
-            snapshot_end = np.searchsorted(
-                events["t"], self.snapshot_end_time, side="left"
-            )
-            if snapshot_end > snapshot_start:
-                _draw_events(
-                    self._snapshot,
-                    events["x"][snapshot_start:snapshot_end],
-                    events["y"][snapshot_start:snapshot_end],
-                    events["p"][snapshot_start:snapshot_end],
+            if self.snapshot_path is not None and self._snapshot is not None:
+                snapshot_start = np.searchsorted(
+                    events["t"], self.snapshot_start_time, side="left"
                 )
-                self.snapshot_event_count += snapshot_end - snapshot_start
+                snapshot_end = np.searchsorted(
+                    events["t"], self.snapshot_end_time, side="left"
+                )
+                if snapshot_end > snapshot_start:
+                    _draw_events(
+                        self._snapshot,
+                        events["x"][snapshot_start:snapshot_end],
+                        events["y"][snapshot_start:snapshot_end],
+                        events["p"][snapshot_start:snapshot_end],
+                    )
+                    self.snapshot_event_count += snapshot_end - snapshot_start
 
         window_start = max(0.0, float(timestamp) - self.accumulation_time)
         while (
@@ -143,6 +150,7 @@ class StreamingEventVisualizer:
         self._writer.write(frame)
         self._event_only_writer.write(self._event_canvas)
         self.processed_frames += 1
+        return frame, self._event_canvas
 
     def finalize(self):
         if self._closed:
@@ -152,8 +160,9 @@ class StreamingEventVisualizer:
         self._closed = True
         if self.processed_frames == 0:
             raise RuntimeError("No video frames were available for visualization")
-        if not cv2.imwrite(str(self.snapshot_path), self._snapshot):
-            raise RuntimeError(f"Cannot create event snapshot: {self.snapshot_path}")
+        if self.snapshot_path is not None and self._snapshot is not None:
+            if not cv2.imwrite(str(self.snapshot_path), self._snapshot):
+                raise RuntimeError(f"Cannot create event snapshot: {self.snapshot_path}")
         if not self.overlay_path.is_file() or self.overlay_path.stat().st_size == 0:
             raise RuntimeError(f"Overlay video was not created: {self.overlay_path}")
         if not self.event_only_path.is_file() or self.event_only_path.stat().st_size == 0:
