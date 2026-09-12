@@ -169,11 +169,18 @@ R <- R + n_pos * C_pos - n_neg * C_neg
 内存中。因此，内存占用主要取决于当前视频帧、当前事件批次和可视化时间窗口。
 这一点非常重要，因为普通视频中的一个像素在相邻两帧之间可能生成多个事件。
 
-## 仓库结构
+### 仓库结构
 
 ```text
 .
-|-- input/
+|-- assets/                         # 软件图标与专属 Logo 资源
+|   |-- icon.ico                    # Windows 多分辨率应用程序图标 (16x16 ~ 256x256)
+|   |-- icon.png                    # 高分辨率 PNG 图标
+|   |-- logo_option1.png            # 方案一 Logo（光圈 + 红蓝事件脉冲流）
+|   `-- logo_option2.png            # 方案二 Logo（仿生神经形态之眼）
+|-- docs/
+|   `-- recommended_video_sources.md # 高速素材调研、候选与规范记录
+|-- input/                          # 输入素材目录（大体积视频本地保存，Git 仅跟踪说明）
 |   |-- demo.mp4
 |   |-- clock_gear_960fps_640x360.mp4
 |   |-- clock_gear_960fps_640x360.source.txt
@@ -188,50 +195,48 @@ R <- R + n_pos * C_pos - n_neg * C_neg
 |   |-- tuning_fork_splash_480fps_640x360.mp4
 |   |-- tuning_fork_splash_480fps_640x360.source.txt
 |   |-- wasserquelle_960fps_640x360.mp4
-|   |-- wasserquelle_960fps_640x360.source.txt
-|   |-- steinwurf_960fps_360x640.mp4
-|   |-- steinwurf_960fps_360x640.source.txt
-|   |-- rain_gutter_drip_960fps_360x640.mp4
-|   `-- rain_gutter_drip_960fps_360x640.source.txt
-|-- docs/
-|   `-- recommended_video_sources.md   # 选材调研与当前测试素材说明
-|-- output/                         # 运行生成，Git 忽略
+|   `-- wasserquelle_960fps_640x360.source.txt
+|-- output/                         # 仿真结果输出（按素材/时间戳自动归档，Git 忽略）
 |-- src/event_camera_sim/
-|   |-- __main__.py                 # 命令行入口
-|   |-- config.py                   # 模拟与输出参数
-|   |-- events.py                   # 像素事件生成模型
-|   |-- pipeline.py                 # 完整流式处理流程
-|   |-- storage.py                  # HDF5 和 CSV 存储
-|   |-- video.py                    # 输入选择与视频解码
-|   `-- visualization.py            # 事件快照和叠加视频
-|-- pyproject.toml
+|   |-- __init__.py
+|   |-- __main__.py                 # CLI/GUI 统一启动入口
+|   |-- config.py                   # 仿真参数与环境适配
+|   |-- events.py                   # 独立像素对数阈值穿越模型
+|   |-- pipeline.py                 # 端到端流式模拟与归档引擎
+|   |-- storage.py                  # HDF5 与 CSV 流式写入器
+|   |-- video.py                    # 视频元数据与解码读取
+|   |-- visualization.py            # 事件叠加与纯事件流渲染
+|   `-- gui/                        # 现代化学术图形界面模块
+|       |-- __init__.py
+|       |-- app.py                  # 主窗口与播放交互逻辑
+|       |-- theme.py                # 深色科技感现代化样式表
+|       `-- worker.py               # 后台异步仿真多线程工作器
+|-- build_exe.py                    # Windows 独立 EXE 一键自动化打包脚本
+|-- EE5110_EventCameraSimulator.spec# PyInstaller 高级构建规范
+|-- run_app.py                      # GUI 快速启动脚本
+|-- run_gui.bat                     # Windows 双击快速运行批处理
+|-- pyproject.toml                  # 项目依赖与包配置
 `-- README.md
 ```
 
 ## 使用 Miniconda 配置环境
 
-项目声明需要 Python 3.12 或更高版本，目前已使用 Python 3.12.14 完成冒烟测试，
-尚未单独验证更高版本 Python 的兼容性。开发机器上已经创建以下环境：
-
-```bash
-source /opt/miniconda3/etc/profile.d/conda.sh
-conda activate EE5110-Segment-B
-```
-
-上面的 `/opt/miniconda3` 是开发机器特有的安装路径。在其他机器上复现环境时，
-请在仓库根目录运行：
+项目声明需要 Python 3.12 或更高版本，目前已使用 Python 3.12 完成全面验证。在本地复现环境时，请在仓库根目录运行：
 
 ```bash
 conda create --name EE5110-Segment-B python=3.12 pip
 conda activate EE5110-Segment-B
-python -m pip install --editable .
+python -m pip install --editable ".[dev]"
 ```
 
-项目依赖已经在 `pyproject.toml` 中声明：
+项目核心依赖已经在 `pyproject.toml` 中声明：
 
-- NumPy：用于向量化事件生成；
-- OpenCV：用于视频解码、灰度转换和可视化；
-- h5py：用于压缩并流式存储事件。
+- **NumPy (`>=2.0`)**：用于高性能向量化像素阵列事件生成；
+- **OpenCV (`>=4.8`)**：用于高帧率视频逐帧解码、色彩空间转换与多模态视频渲染；
+- **h5py (`>=3.11`)**：用于微秒级时间戳事件流的 LZF 分块压缩流式存储；
+- **PySide6 (`>=6.5`)**：提供现代化跨平台交互式图形用户界面 (GUI)；
+- **Pillow (`>=10.0`)**：用于生成符合 Windows 系统规范的多分辨率 `.ico` 应用程序图标；
+- **PyInstaller (`>=6.0`, dev)**：用于构建 Windows 独立免安装可执行程序包。
 
 ## 运行模拟器
 
@@ -239,13 +244,38 @@ python -m pip install --editable .
 
 ### 方式一：Windows 独立可执行程序（推荐 PPT 答辩演示）
 
-项目已打包为独立的 Windows 免安装绿色运行包，存放在 `dist/EventCameraSimulator/` 目录下：
+项目支持一键生成独立的 Windows 免安装绿色运行包，存放在 `dist/EventCameraSimulator/` 目录下：
 
-1. 打开 `dist/EventCameraSimulator/` 目录；
-2. 双击运行 `EventCameraSimulator.exe` 即可启动图形交互界面（无需预装 Python 或 Conda 环境）；
-3. 随包已附带 `input/` 8 款精选高速演示素材（蜂鸟 2000 FPS、音叉水花 480 FPS、闪电 240 FPS、齿轮 960 FPS 等）以及英文使用说明 `README_Instructions.txt`。
+1. **直接启动**：双击运行 `dist/EventCameraSimulator/EventCameraSimulator.exe` 即可启动图形交互系统（无需安装 Python、Conda 或任何依赖）；
+2. **便携分享**：打包脚本会自动生成 `dist/EventCameraSimulator.zip` 压缩包（约 220 MB），可直接拷入 U 盘或发送给同学；解压后可在任何 Windows 10/11 电脑上秒开运行；
+3. **内置资源**：已随包内置 8 款精选高速演示素材（蜂鸟 2000 FPS、音叉水花 480 FPS、闪电 240 FPS、齿轮 960 FPS 等）、专属定制 Logo 与英文使用指南 `README_Instructions.txt`。
 
-> 如需重新打包构建最新版本，可在激活环境后运行 `python build_exe.py`。
+#### 🛠️ Windows 独立 EXE 一键打包教程 (Packaging Guide)
+
+> **为什么 Git 仓库没有直接追踪 `dist/`？**
+> - **文件体积限制**：打包后的运行包包含 Python 完整独立运行时、C++ 动态链接库（DLL）及 8 款高清素材，解压后约 380 MB（压缩包约 220 MB），超过了 GitHub 单文件 100 MB 上限规范。
+> - **开源工程规范**：二进制分发产物遵循由本地源码即时构建的最佳实践，避免源码仓库体积膨胀。
+
+本项目提供工业级一键全自动打包流程，只需一条命令即可在 1 分钟内完成构建：
+
+1. **准备打包环境**（只需配置一次）：
+   ```bash
+   pip install -e ".[dev]"
+   # 或单独安装: pip install pyinstaller pillow PySide6
+   ```
+
+2. **执行一键构建**：
+   在仓库根目录下运行：
+   ```bash
+   python build_exe.py
+   ```
+
+3. **打包脚本全自动流水线**：
+   - **自动化清理与环境检测**：自动关闭被占用的后台进程，清除历史临时构建文件；
+   - **智能依赖收集与二进制裁剪**：基于定制的 `EE5110_EventCameraSimulator.spec`，自动排除 Anaconda 与 Windows 系统冲突的过旧 `icu*.dll`，裁剪无关 QML/Debug 模块以防 Windows `MAX_PATH` 路径超长；
+   - **多分辨率 Logo 自动注入**：将 `assets/icon.ico`（包含 16x16 到 256x256 全尺寸）静态注入到 EXE PE 资源头部，确保资源管理器与任务栏均完美显示定制图标；
+   - **素材与说明自动同步**：自动将 `input/` 视频素材、`assets/` 图标及英文说明 `README_Instructions.txt` 拷贝至发布目录；
+   - **自动打包压缩包**：自动生成 `dist/EventCameraSimulator.zip` 便携压缩包，方便一键发送给他人。
 
 ### 方式二：从源码启动图形界面 (GUI)
 
@@ -331,31 +361,26 @@ CC BY-SA 3.0 许可见 `input/fire_1000fps_320x80.source.txt`。
 
 ## 生成结果
 
-结果按照输入视频的文件名主干和参数值组织：
+模拟结果按照输入视频文件名与模拟开始时间戳规范自动归档：
 
 ```text
-output/<video>/<parameter-tag>/
-|-- events.h5
-|-- events_sample.csv
-|-- event_snapshot.png
-|-- event_overlay.mp4
-|-- event_only.mp4
-`-- metadata.json
+output/<video_name>/<YYYYMMDD_HHMMSS>/
+|-- events.h5           # 完整事件流权威 HDF5 数据集
+|-- events_sample.csv   # 前 50,000 个事件的明文样例数据
+|-- event_overlay.mp4   # 半透明红(ON)/蓝(OFF)事件叠加演示视频
+|-- event_only.mp4      # 纯事件流独立视频（灰底红蓝脉冲视图）
+`-- metadata.json       # 实验报告（包含参数、物理耗时、事件数与吞吐量）
 ```
 
-`event_overlay.mp4` 把事件按 `OVERLAY_EVENT_ALPHA` 半透明叠加在原始画面上，便于
-对照运动来源；`event_only.mp4` 是单独的事件相机视图：每帧都是纯灰色(127)画布，
-只画红（ON）蓝（OFF）事件点，不含原始画面，风格与 `event_snapshot.png` 一致。
-两个视频使用相同的累积时间窗口和慢放帧率。
+- **`event_overlay.mp4`**：把事件按 `OVERLAY_EVENT_ALPHA` 半透明叠加在原始画面上，直观展示事件发生的空间位置与运动源；
+- **`event_only.mp4`**：纯事件相机输出视图，仅保留红（ON）蓝（OFF）动态极性事件点，不显示背景画面；
+- 两个视频均按指定的累积时间窗口以 30 FPS 慢放呈现，方便人眼观察与 PPT 演示播放。
 
-使用默认配置处理推荐齿轮素材时，输出目录为：
+例如，处理推荐蜂鸟素材的一组输出目录为：
 
 ```text
-output/clock_gear_960fps_640x360/pos0.4_neg0.4_eps0.001_ts1e-06_acc0.002_snap0.3-0.005_view30_alpha0.45/
+output/hummingbird_2000fps_648x360/20260912_194908/
 ```
-
-参数标签的格式为：
-`pos<正阈值>_neg<负阈值>_eps<epsilon>_ts<时间戳分辨率>_acc<累积时间>_snap<开始时间>-<持续时间>_view<展示FPS>_alpha<事件不透明度>`。
 
 `events.h5` 是完整事件列表的权威输出，其中包含四个一维数据集：
 
@@ -363,20 +388,12 @@ output/clock_gear_960fps_640x360/pos0.4_neg0.4_eps0.001_ts1e-06_acc0.002_snap0.3
 | --- | --- | --- |
 | `/x` | `int32` | 像素列坐标 |
 | `/y` | `int32` | 像素行坐标 |
-| `/t` | `float64` | 以秒为单位的时间戳 |
+| `/t` | `float64` | 以秒为单位的连续时间戳 |
 | `/p` | `int8` | 极性：`+1` 表示 ON，`-1` 表示 OFF |
 
-默认情况下，`events_sample.csv` 只包含最前面的 100,000 个事件，不能将它当作
-完整结果。`metadata.json` 会记录输入属性、模型假设、参数、事件数量、告警、输出
-文件信息和各处理阶段耗时。
+默认情况下，`events_sample.csv` 包含前 50,000 个事件样例，便于用 Excel 等工具快速查看数据格式。`metadata.json` 会记录完整元数据、模型假设、参数、事件总数、极性比例与各阶段耗时。
 
-程序首先写入 `events.partial.h5`、`events_sample.partial.csv`、
-`event_snapshot.partial.png`、`event_overlay.partial.mp4`、
-`event_only.partial.mp4` 和 `metadata.partial.json`。只有当程序内置的字段长度、
-事件数量和完成状态检查通过后，
-才会替换为正式文件名。写入器还会拒绝时间戳递减的事件。这些运行时保护已经存在于
-代码中，但目前尚无自动化测试覆盖。使用相同参数重复处理同一个视频时，对应的最终
-输出文件会被替换，不会自动创建新的运行编号。
+程序在运行过程中首先写入 `.partial` 临时文件，只有当程序内置的字段长度、事件数量和状态校验全部通过后，才会原子化替换为最终输出文件；并内置针对 Windows 文件锁的重试与回退保护机制。
 
 ## 提交前需要完成的验证
 
