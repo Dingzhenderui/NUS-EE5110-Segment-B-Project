@@ -1,0 +1,15 @@
+Source title: Snowfall-240fps.webm
+Source author: Cody Logan
+Source page: https://commons.wikimedia.org/wiki/File:Snowfall-240fps.webm
+Original file: https://commons.wikimedia.org/wiki/Special:Redirect/file/Snowfall-240fps.webm
+License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+License URL: https://creativecommons.org/licenses/by/3.0/
+Capture and published frame rate: 240 FPS
+
+Local transformation:
+- Decoded all 1295 available source frames from the actual-speed 240 FPS file.
+- Preserved the source capture timeline at 240 FPS.
+- Resized each frame from 1280x720 to 640x360 with area interpolation.
+- Removed the audio track during conversion.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 5.395833 seconds.

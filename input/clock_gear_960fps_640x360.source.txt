@@ -1,0 +1,16 @@
+Source title: Zeitlupenaufnahme (960 fps nach 30 fps, 32-fach) des Antriebszahnrads
+Source author: Bitschieber
+Source page: https://commons.wikimedia.org/wiki/File:Zeitlupenaufnahme_%28960_fps_nach_30_fps,_32-fach%29_des_Antriebszahnrads_%28Motorachse%29_eines_Uhrwerks_mit_modifizierter_Ansteuerung_der_Spule_%281-1-1-1_Tastverh%C3%A4ltnis%29.webm
+License: CC0 1.0 Universal Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Capture frame rate: 960 FPS
+Published playback frame rate: 30 FPS
+
+Local transformation:
+- Decoded all 506 available source frames from the 30 FPS slow-motion file.
+- Restored the capture timeline by encoding all frames at 960 FPS.
+- Resized each frame from 1280x720 to 640x360 with area interpolation.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 0.527083 seconds.
+- Simulator overlays are intentionally written at 30 FPS for watchable slow-motion playback;
+  event generation and timestamps continue to use the 960 FPS input timeline.

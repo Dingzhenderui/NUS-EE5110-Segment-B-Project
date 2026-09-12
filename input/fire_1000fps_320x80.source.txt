@@ -1,0 +1,15 @@
+Source title: Fire 1000 fps.ogv
+Source author: Mark Kilby
+Source page: https://commons.wikimedia.org/wiki/File:Fire_1000_fps.ogv
+Original file: https://upload.wikimedia.org/wikipedia/commons/9/91/Fire_1000_fps.ogv
+License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+License URL: https://creativecommons.org/licenses/by-sa/3.0/
+Capture device: Casio Exilim HS high-speed camera
+Capture frame rate: 1000 FPS
+
+Local transformation:
+- Decoded all 963 source frames from the 30 FPS slow-motion presentation file.
+- Restored the capture timeline by encoding all frames at 1000 FPS.
+- Resized each frame from 640x160 to 320x80 with area interpolation.
+- Did not create, duplicate, or temporally interpolate frames.
+- Resulting physical duration: 0.963 seconds.

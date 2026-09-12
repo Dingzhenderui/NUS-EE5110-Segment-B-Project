@@ -220,6 +220,12 @@ __marimo__/
 # Local input videos and generated results
 /input/*
 !/input/demo.mp4
+!/input/fire_1000fps_320x80.mp4
+!/input/fire_1000fps_320x80.source.txt
+!/input/clock_gear_960fps_640x360.mp4
+!/input/clock_gear_960fps_640x360.source.txt
+!/input/snowfall_240fps_640x360.mp4
+!/input/snowfall_240fps_640x360.source.txt
 /output/
 
 # Local editor settings
