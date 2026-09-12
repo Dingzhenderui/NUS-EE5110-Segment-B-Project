@@ -63,6 +63,8 @@ def build_output_paths(video_path):
         "snapshot_partial": result_dir / "event_snapshot.partial.png",
         "overlay": result_dir / "event_overlay.mp4",
         "overlay_partial": result_dir / "event_overlay.partial.mp4",
+        "event_only": result_dir / "event_only.mp4",
+        "event_only_partial": result_dir / "event_only.partial.mp4",
         "metadata": result_dir / "metadata.json",
         "metadata_partial": result_dir / "metadata.partial.json",
     }
@@ -161,6 +163,7 @@ def _build_metadata(
             "events_csv_sample": output_paths["csv"].name,
             "event_snapshot": output_paths["snapshot"].name,
             "event_overlay": output_paths["overlay"].name,
+            "event_only_video": output_paths["event_only"].name,
         },
     }
     if error is not None:
@@ -263,6 +266,7 @@ def run(video_path):
         visualizer = StreamingEventVisualizer(
             info,
             output_paths["overlay_partial"],
+            output_paths["event_only_partial"],
             output_paths["snapshot_partial"],
             config.ACCUMULATION_TIME,
             config.SNAPSHOT_START_TIME,
@@ -344,6 +348,7 @@ def run(video_path):
             ("csv_partial", "csv"),
             ("snapshot_partial", "snapshot"),
             ("overlay_partial", "overlay"),
+            ("event_only_partial", "event_only"),
             ("metadata_partial", "metadata"),
         ):
             _replace_output(output_paths[partial_key], output_paths[final_key])
@@ -352,7 +357,7 @@ def run(video_path):
         print(f"HDF5 size:  {_format_bytes(hdf5_size)}")
         print(f"Time:       {timings['total_seconds']:.2f} s")
         print("\nGenerated files:")
-        for key in ("h5", "csv", "snapshot", "overlay", "metadata"):
+        for key in ("h5", "csv", "snapshot", "overlay", "event_only", "metadata"):
             print(f"- {output_paths[key]}")
         print("======================================")
         print("Finished.")

@@ -9,6 +9,7 @@ import numpy as np
 
 POSITIVE_COLOR = (0, 0, 255)  # Red in OpenCV BGR order.
 NEGATIVE_COLOR = (255, 0, 0)  # Blue in OpenCV BGR order.
+EVENT_CANVAS_GRAY = 127  # Neutral background of the event-only view.
 
 
 def _draw_events(frame, x, y, p, alpha=1.0):
@@ -33,13 +34,26 @@ def _draw_events(frame, x, y, p, alpha=1.0):
     return frame
 
 
+def _create_writer(path, playback_fps, width, height):
+    writer = cv2.VideoWriter(
+        str(path),
+        cv2.VideoWriter_fourcc(*"mp4v"),
+        float(playback_fps),
+        (width, height),
+    )
+    if not writer.isOpened():
+        raise RuntimeError(f"Cannot create video: {path}")
+    return writer
+
+
 class StreamingEventVisualizer:
-    """Write the overlay and snapshot during the simulator's video pass."""
+    """Write the overlay, the event-only video, and the snapshot during the simulator's video pass."""
 
     def __init__(
         self,
         video_info,
         overlay_path,
+        event_only_path,
         snapshot_path,
         accumulation_time,
         snapshot_start_time,
@@ -59,6 +73,7 @@ class StreamingEventVisualizer:
             raise ValueError("Overlay event alpha must be in the range (0, 1]")
 
         self.overlay_path = Path(overlay_path)
+        self.event_only_path = Path(event_only_path)
         self.snapshot_path = Path(snapshot_path)
         self.overlay_path.parent.mkdir(parents=True, exist_ok=True)
         self.snapshot_path.parent.mkdir(parents=True, exist_ok=True)
@@ -73,15 +88,16 @@ class StreamingEventVisualizer:
 
         width = int(video_info["width"])
         height = int(video_info["height"])
-        self._snapshot = np.full((height, width, 3), 127, dtype=np.uint8)
-        self._writer = cv2.VideoWriter(
-            str(self.overlay_path),
-            cv2.VideoWriter_fourcc(*"mp4v"),
-            float(overlay_playback_fps),
-            (width, height),
+        self._snapshot = np.full((height, width, 3), EVENT_CANVAS_GRAY, dtype=np.uint8)
+        self._event_canvas = np.full(
+            (height, width, 3), EVENT_CANVAS_GRAY, dtype=np.uint8
         )
-        if not self._writer.isOpened():
-            raise RuntimeError(f"Cannot create overlay video: {self.overlay_path}")
+        self._writer = _create_writer(
+            self.overlay_path, overlay_playback_fps, width, height
+        )
+        self._event_only_writer = _create_writer(
+            self.event_only_path, overlay_playback_fps, width, height
+        )
 
     def add_frame(self, frame, timestamp, events):
         if self._closed:
@@ -113,25 +129,26 @@ class StreamingEventVisualizer:
         ):
             self._recent_batches.popleft()
 
+        self._event_canvas[:] = EVENT_CANVAS_GRAY
         for batch in self._recent_batches:
             start = np.searchsorted(batch["t"], window_start, side="left")
             end = np.searchsorted(batch["t"], timestamp, side="right")
             if end > start:
-                _draw_events(
-                    frame,
-                    batch["x"][start:end],
-                    batch["y"][start:end],
-                    batch["p"][start:end],
-                    self.overlay_event_alpha,
-                )
+                batch_x = batch["x"][start:end]
+                batch_y = batch["y"][start:end]
+                batch_p = batch["p"][start:end]
+                _draw_events(frame, batch_x, batch_y, batch_p, self.overlay_event_alpha)
+                _draw_events(self._event_canvas, batch_x, batch_y, batch_p)
 
         self._writer.write(frame)
+        self._event_only_writer.write(self._event_canvas)
         self.processed_frames += 1
 
     def finalize(self):
         if self._closed:
             return
         self._writer.release()
+        self._event_only_writer.release()
         self._closed = True
         if self.processed_frames == 0:
             raise RuntimeError("No video frames were available for visualization")
@@ -139,9 +156,12 @@ class StreamingEventVisualizer:
             raise RuntimeError(f"Cannot create event snapshot: {self.snapshot_path}")
         if not self.overlay_path.is_file() or self.overlay_path.stat().st_size == 0:
             raise RuntimeError(f"Overlay video was not created: {self.overlay_path}")
+        if not self.event_only_path.is_file() or self.event_only_path.stat().st_size == 0:
+            raise RuntimeError(f"Event-only video was not created: {self.event_only_path}")
 
     def abort(self):
         if self._closed:
             return
         self._writer.release()
+        self._event_only_writer.release()
         self._closed = True

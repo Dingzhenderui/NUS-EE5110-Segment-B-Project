@@ -267,7 +267,8 @@ CC BY-SA 3.0 许可见 `input/fire_1000fps_320x80.source.txt`。
 
 仿真时间轴和展示时间轴有意分离。事件生成使用输入视频的 960 FPS，即相邻帧相差
 约 1.042 毫秒；`event_overlay.mp4` 保留相同的 506 帧，但以 30 FPS 输出，因此播放
-时长为 16.87 秒。这只是慢放展示，不会修改 HDF5 中的事件时间戳。
+时长为 16.87 秒。这只是慢放展示，不会修改 HDF5 中的事件时间戳。`event_only.mp4`
+与叠加视频逐帧对应。
 
 `snowfall_240fps_640x360.mp4` 是实际速度保存的 240 FPS 降雪序列，不需要恢复
 时间基准。项目版本保留全部 1295 帧，将 1280 x 720 缩小到 640 x 360，并移除
@@ -307,8 +308,14 @@ output/<video>/<parameter-tag>/
 |-- events_sample.csv
 |-- event_snapshot.png
 |-- event_overlay.mp4
+|-- event_only.mp4
 `-- metadata.json
 ```
+
+`event_overlay.mp4` 把事件按 `OVERLAY_EVENT_ALPHA` 半透明叠加在原始画面上，便于
+对照运动来源；`event_only.mp4` 是单独的事件相机视图：每帧都是纯灰色(127)画布，
+只画红（ON）蓝（OFF）事件点，不含原始画面，风格与 `event_snapshot.png` 一致。
+两个视频使用相同的累积时间窗口和慢放帧率。
 
 使用默认配置处理推荐齿轮素材时，输出目录为：
 
@@ -333,8 +340,9 @@ output/clock_gear_960fps_640x360/pos0.4_neg0.4_eps0.001_ts1e-06_acc0.002_snap0.3
 文件信息和各处理阶段耗时。
 
 程序首先写入 `events.partial.h5`、`events_sample.partial.csv`、
-`event_snapshot.partial.png`、`event_overlay.partial.mp4` 和
-`metadata.partial.json`。只有当程序内置的字段长度、事件数量和完成状态检查通过后，
+`event_snapshot.partial.png`、`event_overlay.partial.mp4`、
+`event_only.partial.mp4` 和 `metadata.partial.json`。只有当程序内置的字段长度、
+事件数量和完成状态检查通过后，
 才会替换为正式文件名。写入器还会拒绝时间戳递减的事件。这些运行时保护已经存在于
 代码中，但目前尚无自动化测试覆盖。使用相同参数重复处理同一个视频时，对应的最终
 输出文件会被替换，不会自动创建新的运行编号。
